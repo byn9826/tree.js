@@ -1,26 +1,24 @@
-new Tree('app');
+new Tree('tree');
 
-app.initState({
-	lists: data
+tree.initState({
+	lists: data,
+	tag: 'No.'
 });
 
-var all = app.mapState('lists', function(list, index) {
-  return `<div>No. ${index + 1}: ${list.content}</div>`;
+tree.states.lists.stateMap('all', function(list, index) {
+  return `<div>${tree.states.tag} ${index + 1}: ${list.content}</div>`;
 });
-
-
 
 var elements = `
   <header>To do list</header>
-  ${all}
+  <div>
+    {{all}}
+  </div>
 `;
-app.render('#root', elements);
 
-// app.states.lists.forEach(function(list) {
-//   if (list.status === '0') {
-    
-//   }
-// });
+tree.render('#root', elements);
+
+
 
 // var container = app.singleDom(`<div>{{state.input}}</div>`);
 // var input = app.singleDom(`<input type="button" value="click" />`);
