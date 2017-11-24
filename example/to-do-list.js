@@ -2,28 +2,34 @@ new Tree('tree');
 
 tree.initState({
 	lists: data,
-	tag: 'No.'
+	content: {
+	  tag: 'No.'
+	},
+	showFullList: true
 });
 
-tree.states.lists.stateMap('all', function(list, index) {
-  return `<div>${tree.states.tag} ${index + 1}: ${list.content}</div>`;
+tree.states.lists.loopBuilder(function(list, index) {
+  if (tree.states.showFullList) {
+    return `
+      <div style="color: ${list.status === '0' ? 'red' : 'green'}">
+        ${tree.states.content.tag} ${index + 1}: ${list.content} 
+      </div>
+    `;
+  }
+}, 'all');
+
+tree.render('#root', `
+  <header>All Tasks</header>
+  <input id="taskName" type="text" />
+  <input id="createTask" type="button" value="Create" />
+  {{all}}
+`);
+
+$('#createTask').click(function() {
+  var content = {
+    content: $('#taskName').val(),
+		status: "0"
+  }
+  tree.setArrayState('lists', false, 0, content);
+  $('#taskName').val('');
 });
-
-var elements = `
-  <header>To do list</header>
-  <div>
-    {{all}}
-  </div>
-`;
-
-tree.render('#root', elements);
-
-
-
-// var container = app.singleDom(`<div>{{state.input}}</div>`);
-// var input = app.singleDom(`<input type="button" value="click" />`);
-// input.onclick = function() {
-// 	app.changeState({input: 234});
-// }
-//var elements = [container, input];
-//app.render('#root', elements);
