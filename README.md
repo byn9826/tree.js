@@ -1,9 +1,9 @@
 #tree.js
 A light data driven jQuery library just for fun  
 
-App Init APIs
+Initial APIs
 --
-1. Create New Tree Instance    
+1. Create New Instance    
 <b>new Tree(appName, rootDom)</b>   
 appName is the name you want to use to call Tree APIs, this will be the appName for all other APIs    
 rootDom is the dom elment you want to render app you created  

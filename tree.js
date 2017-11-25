@@ -11,6 +11,9 @@ var Tree = function(app, root) {
   this._domWatcher = {};
   this._domGenerator = new Map();
   
+  this._waitQueue = new Set();
+  this._taskQueue = null;
+  
   this._push = function (root, param, value) {
     root[param] ? root[param].push(value) : root[param] = [value];
   };
@@ -94,32 +97,43 @@ var Tree = function(app, root) {
     }
   };
   
-  this._watchWorker = function(state) {
+  this._updateWaitQueue = function(state) {
     this._domWatcher[state].forEach(function(code) {
-      var memory = this._domGenerator.get(code);
-      switch(memory[1]) {
-        case 'map':
-          var newDom = this._mapBuilderResult(this.states[memory[0]], memory[2], code);
-          this._domReplacer(code, newDom);
-          break;
-        case 'forEach':
-          this._domHolderCreator(this.states[memory[0]], memory[3], memory[2]);
-          memory[3].forEach(function(param, index) {
-            this.dom[param] = this.dom[param].map(function(element) {
-              var el = jQuery(jQuery.parseHTML(element.trim()));
-              el.addClass('_tree' + code[index]);
-              return el;
-            });
-            this._domReplacer(code[index], this.dom[param]);
-          }.bind(this));
-          this.dom = {};
-          break;
-        case 'single':
-          var result = this._singleBuilder(memory[2], code);
-          this._domReplacer(code, result);
-          break;
-      }
+      this._waitQueue.add(code);
     }.bind(this));
+  }
+  
+  this._queueWorker = function(state) {
+    while(this._waitQueue.size !== 0) {
+      this._workQueue = Array.from(this._waitQueue);
+      this._waitQueue = new Set();
+      this._workQueue.forEach(function(code) {
+        var memory = this._domGenerator.get(code);
+        switch(memory[1]) {
+          case 'map':
+            var newDom = this._mapBuilderResult(this.states[memory[0]], memory[2], code);
+            this._domReplacer(code, newDom);
+            break;
+          case 'forEach':
+            this._domHolderCreator(this.states[memory[0]], memory[3], memory[2]);
+            memory[3].forEach(function(param, index) {
+              this.dom[param] = this.dom[param].map(function(element) {
+                var el = jQuery(jQuery.parseHTML(element.trim()));
+                el.addClass('_tree' + code[index]);
+                return el;
+              });
+              this._domReplacer(code[index], this.dom[param]);
+            }.bind(this));
+            this.dom = {};
+            break;
+          case 'single':
+            var result = this._singleBuilder(memory[2], code);
+            this._domReplacer(code, result);
+            break;
+        }
+      }.bind(this));
+    }
+    this._workQueue = null;
   };
 };
 
@@ -148,18 +162,20 @@ Tree.prototype.singleBuilder = function(method, param) {
 Tree.prototype.updateStates = function(states) {
   for (var state in states) {
     this.states[state] = states[state];
-    this._watchWorker(state);
+    this._updateWaitQueue(state);
   }
+  this._queueWorker();
 };
+
 
 Tree.prototype.render = function(elements) {
   jQuery(this._root).append(elements);
   this.dom = {};
 };
 
-/*
- *  API used to perform high efficiency array type state update
- */
+
+//API used to perform high efficiency array type state update
+//
 // Tree.prototype.setArrayState = function(state, pin, replace, value) {
 //   if (pin === false) {
 //     pin = this.states[state].length;
