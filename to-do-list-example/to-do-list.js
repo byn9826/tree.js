@@ -3,7 +3,7 @@ new Tree('tree', '#root');
 tree.initState({
   title: 'Study List',
 	lists: data,
-	showFullList: true
+	showList: true
 });
 
 tree.singleBuilder(function() {
@@ -12,10 +12,10 @@ tree.singleBuilder(function() {
       ${tree.states.title}
     </div>
   `
-}, 'title')
+}, 'title');
 
 tree.states.lists.mapBuilder(function(list, index) {
-  if (tree.states.showFullList) {
+  if (tree.states.showList) {
     return `
       <li class="list-group-item" style="color: ${list.status === '0' ? 'red' : 'green'}">
         No. ${index + 1}: ${list.content} 
@@ -37,9 +37,12 @@ tree.render(`
   <section class="row" style="margin-bottom: 50px;">
     ${tree.dom.title}
     <div class="col-md-4">
+      <input id="task-editor" type="text" class="form-control" placeholder="List Name" value="${tree.states.title}" />
+    </div>
+    <div class="col-md-4">
       <div class="input-group">
-        <input id="taskName" type="text" class="form-control" placeholder="Add new task">
-        <span id="createTask" class="input-group-btn">
+        <input id="task-name" type="text" class="form-control" placeholder="Add new task">
+        <span id="task-creator" class="input-group-btn">
           <button class="btn btn-secondary" type="button">Create</button>
         </span>
       </div>
@@ -49,7 +52,7 @@ tree.render(`
     <ul class="list-group col-md-4">
       <li class="list-group-item active">
         All Tasks
-        <button id="toggle-button" class="btn btn-light" type="button" style="margin-left: 30px">
+        <button id="list-toggle" class="btn btn-light" type="button" style="margin-left: 30px">
           Toggle
         </button>
       </li>
@@ -66,16 +69,23 @@ tree.render(`
   </section>
 `);
 
-$('#toggle-button').click(function() {
-  tree.setNormalState({showFullList: !tree.states.showFullList});
+$('#task-editor').keyup(function() {
+  tree.setNormalState({title: event.target.value});
 });
 
-$('#createTask').click(function() {
+$('#list-toggle').click(function() {
+  tree.setNormalState({showList: !tree.states.showList});
+});
+
+$('#task-creator').click(function() {
+  var data = $('#task-name').val().trim();
+  if (data === '') {
+    return;
+  }
   var content = {
-    content: $('#taskName').val(),
+    content: data,
 		status: "0"
   }
   tree.setArrayState('lists', false, 0, content);
-  $('#taskName').val('');
+  $('#task-name').val('');
 });
-
