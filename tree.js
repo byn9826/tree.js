@@ -76,7 +76,7 @@ var Tree = function(app, root) {
     params.forEach(function(param) {
       this.dom[param] = [];
     }.bind(this));
-    data.forEach(method.bind(this.dom));
+    data.forEach(method);
   };
   
   this._domIniter = function(param, result) {
@@ -145,19 +145,11 @@ Tree.prototype.singleBuilder = function(method, param) {
   this._domGenerator.set(marker, [param, 'single', method]);
 };
 
-Tree.prototype.setNormalState = function(states) {
+Tree.prototype.updateStates = function(states) {
   for (var state in states) {
     this.states[state] = states[state];
     this._watchWorker(state);
   }
-};
-
-Tree.prototype.setArrayState = function(state, pin, replace, value) {
-  if (pin === false) {
-    pin = this.states[state].length;
-  }
-  this.states[state].splice(pin, replace, value);
-  this._watchWorker(state);
 };
 
 Tree.prototype.render = function(elements) {
@@ -165,6 +157,13 @@ Tree.prototype.render = function(elements) {
   this.dom = {};
 };
 
-Tree.prototype.jQuery = function(selector, context) {
-  return new jQuery.fn.init(selector, context);
-};
+/*
+ *  API used to perform high efficiency array type state update
+ */
+// Tree.prototype.setArrayState = function(state, pin, replace, value) {
+//   if (pin === false) {
+//     pin = this.states[state].length;
+//   }
+//   value === undefined ? this.states[state].splice(pin, replace) : this.states[state].splice(pin, replace, value);
+//   this._watchWorker(state);
+// };
