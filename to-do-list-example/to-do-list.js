@@ -2,8 +2,8 @@ new Tree('tree', '#root');
 
 tree.initState({
   title: 'Study List',
-	lists: data,
-	showList: true
+  lists: data,
+  showList: true
 });
 
 tree.singleBuilder(function() {return `
@@ -48,12 +48,21 @@ tree.states.lists.forEachBuilder(function (list, index) {
 }, 'doing', 'done');
 
 tree.beforeRender(function() {
-  console.log('Hello Tree.js Before Render');
+  console.log("Now. It's before render");
 });
 
 tree.afterRender(function() {
-  tree.updateStates({title: 'Name Updated After Render'});
+  console.log('Now. Rendered');
 });
+
+tree.beforeUpdate(function() {
+  console.log("Let's start update");
+});
+
+tree.afterUpdate(function() {
+  console.log('Updated');
+});
+
 
 tree.render(`
   <section class="row" style="margin-bottom: 40px;">

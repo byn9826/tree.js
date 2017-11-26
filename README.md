@@ -1,7 +1,16 @@
-# tree.js
-A light data driven jQuery library just for fun  
+# Tree.js
+A light data driven jQuery library just for fun   
 
-Initial APIs
+Example
+--
+[To Do List](https://github.com/byn9826/tree.js/blob/master/to-do-list-example/to-do-list.js)   
+  
+Prerequisite
+--
+<script type="text/javascript" src="jquery-3.2.1.min.js"></script>  
+<script type="text/javascript" src="tree.js"></script>  
+  
+Initial APP
 --
 1. <b>Create New Instance</b>  
 <b>new Tree(appName, rootDom)</b>  
@@ -21,13 +30,13 @@ states could be called by ${appName.states.param} in your Dom builder template
 ```
 app.initState({
   name: 'tree.js',
-	base: 'jQuery',
-	type: 'data driven',
-	builderAPIs: ['singleBuilder', 'mapBuilder', 'forEachBuilder']
+  base: 'jQuery',
+  type: 'data driven',
+  builderAPIs: ['singleBuilder', 'mapBuilder', 'forEachBuilder']
 });
 ```
   
-States binding dom element builder APIs  
+Data Binding Dom Builder 
 --
 1. <b>Create a single Element</b>   
 <b>appName.singleBuilder(function, domName)</b>   
@@ -69,7 +78,7 @@ appName.states.builderAPIs.forEachBuilder(function (api, index) {
   
 Render & Update
 --
-1. <b>Render</b>   
+1. <b>Render Root</b>   
 <b>appName.render(template)</b>    
 template contains your html template for this App  
 ```
@@ -88,6 +97,16 @@ appName.render(`
 Put state and new value pair inside  
 ```
 appName.updateStates({name: 'Just_For_Fun.js'});
+```
+  
+Lifecycle
+--
+beforeRender, afterRender, beforeUpdate, afterUpdate  
+<b>appName.beforeRender(function)</b>   
+```
+tree.afterRender(function() {
+  console.log('Everything rendered');
+});
 ```
   
 Just For Fun  

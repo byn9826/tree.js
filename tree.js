@@ -16,6 +16,9 @@ var Tree = function(app, root) {
   
   this._lifeCycle = 'init',
   this._beforeRender = null;
+  this._afterRender = null;
+  this._beforeUpdate = null;
+  this._afterUpdate = null;
   
   this._push = function (root, param, value) {
     root[param] ? root[param].push(value) : root[param] = [value];
@@ -104,7 +107,7 @@ var Tree = function(app, root) {
     this._domWatcher[state].forEach(function(code) {
       this._waitQueue.add(code);
     }.bind(this));
-  }
+  };
   
   this._queueWorker = function(state) {
     while(this._waitQueue.size !== 0) {
@@ -167,6 +170,13 @@ Tree.prototype.updateStates = function(states) {
     this.states[state] = states[state];
     this._updateWaitQueue(state);
   }
+  if (this._waitQueue.size === 0) {
+    return;
+  }
+  this._lifeCycle = 'beforeUpdate';
+  if (this._beforeUpdate !== null) {
+    this._beforeUpdate();
+  }
   //Temporary solution for input replacement
   var focused = document.activeElement;
   if (focused !== undefined && focused.tagName === 'INPUT') {
@@ -177,10 +187,15 @@ Tree.prototype.updateStates = function(states) {
     });
   }
   this._queueWorker();
+  //Temporary solution for input replacement
   if (code !== undefined) {
     $('.' + code).focus();
     var last = $('.' + code).val().length;
     $('.' + code)[0].setSelectionRange(last, last);
+  }
+  this._lifeCycle = 'afterUpdate';
+  if (this._afterUpdate !== null) {
+    this._afterUpdate();
   }
 };
 
@@ -203,6 +218,14 @@ Tree.prototype.beforeRender = function(method) {
 
 Tree.prototype.afterRender = function(method) {
   this._afterRender = method;
+};
+
+Tree.prototype.beforeUpdate = function(method) {
+  this._beforeUpdate = method;
+};
+
+Tree.prototype.afterUpdate = function(method) {
+  this._afterUpdate = method;
 };
 
 //API used to perform high efficiency array type state update
