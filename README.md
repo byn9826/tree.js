@@ -1,10 +1,10 @@
-#tree.js
+# tree.js
 A light data driven jQuery library just for fun  
 
 Initial APIs
 --
-1. Create New Instance    
-<b>new Tree(appName, rootDom)</b>   
+1. <b>Create New Instance</b>  
+<b>new Tree(appName, rootDom)</b>  
 appName is the name you want to use to call Tree APIs, this will be the appName for all other APIs    
 rootDom is the dom elment you want to render app you created  
 ```
@@ -14,8 +14,8 @@ rootDom is the dom elment you want to render app you created
 </script>
 ```
    
-2. Init States
-<b>appName.initState(object)</b>   
+2. <b>Init States</b>  
+<b>appName.initState(object)</b>  
 object is any object you created to store states  
 states could be called by ${appName.states.param} in your Dom builder template    
 ```
@@ -29,8 +29,8 @@ app.initState({
   
 States binding dom element builder APIs  
 --
-1. Create a single Element
-<b>appName.singleBuilder(function, domName)</b>  
+1. <b>Create a single Element</b>   
+<b>appName.singleBuilder(function, domName)</b>   
 function should return a dom element based on template and states params   
 domName is the params you want to use to store this dom element    
 The created dom could be called by ${appName.dom.param}     
@@ -40,8 +40,8 @@ appName.singleBuilder(function() {return `
 `}, 'desc');
 ```
   
-2. Create Element Use Map-Like Loop   
-<b>appName.states.param.mapBuilder(function, domName)</b>  
+2. <b>Create Element Use Map-Like Loop</b>   
+<b>appName.states.param.mapBuilder(function, domName)</b>   
 function should return a dom element based on template and states params   
 domName is the params you want to use to store this dom element    
 The created dom could be called by ${appName.dom.param}   
@@ -51,8 +51,8 @@ appName.states.builderAPIs.mapBuilder(function(api, index) {return `
 `;}}, 'APIs');
 ``` 
   
-3. Create Elements Use forEach-Like Loop  
-<b>appName.states.param.forEachBuilder(function, domName1, domName2 ...)</b>  
+3. <b>Create Elements Use forEach-Like Loop</b>   
+<b>appName.states.param.forEachBuilder(function, domName1, domName2 ...)</b>   
 function should return a dom element based on template and states params  
 domName is the params you want to use to store this dom element    
 You could use any numbers of domNames in this function  
@@ -69,8 +69,8 @@ appName.states.builderAPIs.forEachBuilder(function (api, index) {
   
 Render & Update
 --
-1. Render  
-<b>appName.render(template)</b>   
+1. <b>Render</b>   
+<b>appName.render(template)</b>    
 template contains your html template for this App  
 ```
 appName.render(`
@@ -83,8 +83,8 @@ appName.render(`
 `);
 ```
 
-2. Update States  
-<b>appName.updateStates({param1: value, ...})</b>  
+2. <b>Update States</b>   
+<b>appName.updateStates({param1: value, ...})</b>   
 Put state and new value pair inside  
 ```
 appName.updateStates({name: 'Just_For_Fun.js'});
@@ -92,4 +92,4 @@ appName.updateStates({name: 'Just_For_Fun.js'});
   
 Just For Fun  
 --
-![For fun](src="https://raw.githubusercontent.com/byn9826/tree.js/raw/master/example/fun.jpg")
+![For fun](https://github.com/byn9826/tree.js/blob/master/to-do-list-example/fun.jpg)

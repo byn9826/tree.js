@@ -6,13 +6,17 @@ tree.initState({
 	showList: true
 });
 
-tree.singleBuilder(function() {
-  return `
-    <div class="alert alert-dark col-md-4" role="alert">
-      ${tree.states.title}
-    </div>
-  `
-}, 'title');
+tree.singleBuilder(function() {return `
+  <div class="alert alert-dark col-md-4" role="alert">
+    ${tree.states.title}
+  </div>
+`}, 'title');
+
+tree.singleBuilder(function() {return `
+  <input onkeyup="editTitle()" type="text" class="form-control" placeholder="List Name" 
+    value="${tree.states.title}" 
+  />
+`}, 'titleEditor');
 
 tree.states.lists.mapBuilder(function(list, index) {
   if (tree.states.showList) {
@@ -43,11 +47,19 @@ tree.states.lists.forEachBuilder(function (list, index) {
   }
 }, 'doing', 'done');
 
+tree.beforeRender(function() {
+  console.log('Hello Tree.js Before Render');
+});
+
+tree.afterRender(function() {
+  tree.updateStates({title: 'Name Updated After Render'});
+});
+
 tree.render(`
   <section class="row" style="margin-bottom: 40px;">
     ${tree.dom.title}
     <div class="col-md-4">
-      <input onkeyup="editTitle()" type="text" class="form-control" placeholder="List Name" value="${tree.states.title}" />
+      ${tree.dom.titleEditor}
     </div>
     <div class="col-md-4">
       <div class="input-group">
