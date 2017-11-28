@@ -20,6 +20,9 @@ var Tree = function(app, root) {
   this._beforeUpdate = null;
   this._afterUpdate = null;
   
+  this._router = {};
+  this._current = '/'
+  
   this._push = function (root, param, value) {
     root[param] ? root[param].push(value) : root[param] = [value];
   };
@@ -103,13 +106,8 @@ var Tree = function(app, root) {
     }
   };
   
-  this._updateWaitQueue = function(state) {
-    this._domWatcher[state].forEach(function(code) {
-      this._waitQueue.add(code);
-    }.bind(this));
-  };
-  
   this._queueWorker = function(state) {
+    this._lifeCycle = 'isUpdating';
     while(this._waitQueue.size !== 0) {
       this._workQueue = Array.from(this._waitQueue);
       this._waitQueue = new Set();
@@ -154,7 +152,6 @@ Tree.prototype.initState = function(data) {
       this.states[state]._name = state;
     }
   }
-  Object.preventExtensions(this.states);
 };
 
 Tree.prototype.singleBuilder = function(method, param) {
@@ -168,16 +165,15 @@ Tree.prototype.singleBuilder = function(method, param) {
 Tree.prototype.updateStates = function(states) {
   for (var state in states) {
     this.states[state] = states[state];
-    this._updateWaitQueue(state);
+    this._domWatcher[state].forEach(function(code) {
+      this._waitQueue.add(code);
+    }.bind(this));
   }
   if (this._waitQueue.size === 0) {
     return;
   }
-  this._lifeCycle = 'beforeUpdate';
-  if (this._beforeUpdate !== null) {
-    this._beforeUpdate();
-  }
   //Temporary solution for input replacement
+  //
   var focused = document.activeElement;
   if (focused !== undefined && focused.tagName === 'INPUT') {
     focused = $(focused).attr('class');
@@ -186,16 +182,23 @@ Tree.prototype.updateStates = function(states) {
       return name.search(/\_tree/) !== -1;
     });
   }
-  this._queueWorker();
+  if (this._lifeCycle !== 'isUpdating') {
+    this._lifeCycle = 'beforeUpdate';
+    if (this._beforeUpdate !== null) {
+      this._beforeUpdate();
+    }
+    this._queueWorker();
+    this._lifeCycle = 'afterUpdate';
+    if (this._afterUpdate !== null) {
+      this._afterUpdate();
+    }
+  }
   //Temporary solution for input replacement
+  //
   if (code !== undefined) {
     $('.' + code).focus();
     var last = $('.' + code).val().length;
     $('.' + code)[0].setSelectionRange(last, last);
-  }
-  this._lifeCycle = 'afterUpdate';
-  if (this._afterUpdate !== null) {
-    this._afterUpdate();
   }
 };
 
@@ -204,11 +207,17 @@ Tree.prototype.render = function(elements) {
   if (this._beforeRender !== null) {
     this._beforeRender();
   }
+  $(this._root).empty();
   $(this._root).append(elements);
   this.dom = {};
   this._lifeCycle = 'afterRender';
   if (this._afterRender !== null) {
     this._afterRender();
+  }
+  if (this._current === '/' && this._router['/'] === undefined) {
+    this._router['/'] = {
+      template: elements,
+    };
   }
 };
 
@@ -228,12 +237,21 @@ Tree.prototype.afterUpdate = function(method) {
   this._afterUpdate = method;
 };
 
-//API used to perform high efficiency array type state update
-//
-// Tree.prototype.setArrayState = function(state, pin, replace, value) {
-//   if (pin === false) {
-//     pin = this.states[state].length;
-//   }
-//   value === undefined ? this.states[state].splice(pin, replace) : this.states[state].splice(pin, replace, value);
-//   this._watchWorker(state);
-// };
+Tree.prototype.addRouter = function(template, url) {
+  this._router[url] = {
+    template: template
+  };
+};
+
+Tree.prototype.reDirect = function(updateStates, url) {
+  this._router[this._current].states = this.states;
+  if (states !== null) {
+    this.initState(states);
+  } else if(this._router[url].states !== undefined) {
+    this.initState(this._router[url].states);
+  }
+  this.render(this._router[url].template);
+  this.updateStates(this.states);
+  this._current = url;
+  window.history.pushState(null, null, url);
+};

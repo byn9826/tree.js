@@ -7,7 +7,7 @@ Example
   
 Prerequisite
 --
-<script type="text/javascript" src="jquery-3.2.1.min.js"></script>  
+<script type="text/javascript" src="jquery-3.2.1.min.js"></script>    
 <script type="text/javascript" src="tree.js"></script>  
   
 Initial APP
@@ -19,7 +19,7 @@ rootDom is the dom elment you want to render app you created
 ```
 <div id="root"></div>
 <script>
-  new Tree('app', '#root');  
+  new Tree('appName', '#root');  
 </script>
 ```
    
@@ -28,7 +28,7 @@ rootDom is the dom elment you want to render app you created
 object is any object you created to store states  
 states could be called by ${appName.states.param} in your Dom builder template    
 ```
-app.initState({
+appName.initState({
   name: 'tree.js',
   base: 'jQuery',
   type: 'data driven',
@@ -101,8 +101,11 @@ appName.updateStates({name: 'Just_For_Fun.js'});
   
 Lifecycle
 --
-beforeRender, afterRender, beforeUpdate, afterUpdate  
-<b>appName.beforeRender(function)</b>   
+<b>beforeRender, afterRender, beforeUpdate, afterUpdate</b>   
+<b>appName.beforeRender(function)</b>  
+<b>appName.afterRender(function)</b>  
+<b>appName.beforeUpdate(function)</b>  
+<b>appName.afterUpdate(function)</b>  
 ```
 tree.afterRender(function() {
   console.log('Everything rendered');

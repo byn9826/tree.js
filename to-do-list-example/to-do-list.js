@@ -63,8 +63,52 @@ tree.afterUpdate(function() {
   console.log('Updated');
 });
 
+function editTitle() {
+  tree.updateStates({title: event.target.value.trim()});
+}
 
-tree.render(`
+function toggleList() {
+  tree.updateStates({showList: !tree.states.showList});
+}
+
+function createNew() {
+  var data = $('#task-name').val().trim();
+  if (data === '') {return;}
+  tree.states.lists.push({
+    content: data,
+		status: "0"
+  });
+  tree.updateStates({lists: tree.states.lists});
+  $('#task-name').val('');
+}
+
+function deleteTask(index) {
+  tree.states.lists.splice(index, 1);
+  tree.updateStates({lists: tree.states.lists});
+}
+
+function changeStatus(index, value) {
+  tree.states.lists[index].status = value;
+  tree.updateStates({lists: tree.states.lists});
+}
+
+var pageHeader =`
+  <nav class="navbar navbar-expand-lg navbar-light bg-light row" style="margin-bottom:50px">
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav mr-auto">
+        <li class="nav-item active">
+          <a class="nav-link" href="#" onclick="toHome()">Home</a>
+        </li>
+        <li class="nav-item active">
+          <a class="nav-link" href="#" onclick="toAbout()">About</a>
+        </li>
+      </ul>
+    </div>
+  </nav>
+`;
+
+var mainPage = `
+  ${pageHeader}
   <section class="row" style="margin-bottom: 40px;">
     ${tree.dom.title}
     <div class="col-md-4">
@@ -98,33 +142,20 @@ tree.render(`
       ${tree.dom.done}
     </ul>
   </section>
-`);
+`;
 
-function editTitle() {
-  tree.updateStates({title: event.target.value.trim()});
+var aboutPage = `
+  ${pageHeader}
+  <h5>This is another page</h5>
+`;
+
+tree.addRouter(aboutPage, '/about');
+tree.render(mainPage);
+
+function toAbout() {
+  tree.reDirect(null, '/about');
 }
 
-function toggleList() {
-  tree.updateStates({showList: !tree.states.showList});
-}
-
-function createNew() {
-  var data = $('#task-name').val().trim();
-  if (data === '') {return;}
-  tree.states.lists.push({
-    content: data,
-		status: "0"
-  });
-  tree.updateStates({lists: tree.states.lists});
-  $('#task-name').val('');
-}
-
-function deleteTask(index) {
-  tree.states.lists.splice(index, 1);
-  tree.updateStates({lists: tree.states.lists});
-}
-
-function changeStatus(index, value) {
-  tree.states.lists[index].status = value;
-  tree.updateStates({lists: tree.states.lists});
+function toHome() {
+  tree.reDirect(null, '/');
 }
