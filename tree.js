@@ -1,7 +1,10 @@
 /*global $*/
+var _tree_root_id = 0;
+
 var Tree = function(app, root) {
   this._version = '0.0.1';
   window[app] = this;
+  this._id = _tree_root_id++;
   
   this._root = root;
   this._self = this;
@@ -20,8 +23,10 @@ var Tree = function(app, root) {
   this._beforeUpdate = null;
   this._afterUpdate = null;
   
+  this.states = {};
   this._router = {};
-  this._current = '/'
+  this._current = null;
+  this._baseUrl = '';
   
   this._push = function (root, param, value) {
     root[param] ? root[param].push(value) : root[param] = [value];
@@ -40,7 +45,7 @@ var Tree = function(app, root) {
     var result = method();
     if (result !== undefined) {
       result = $($.parseHTML(result.trim()));
-      result.addClass('_tree' + marker);
+      result.addClass('_' + this._id + '_tree' + marker);
     }
     return result;
   };
@@ -61,7 +66,7 @@ var Tree = function(app, root) {
     });
     return results.map(function(result, index) {
       var element = $($.parseHTML(result.trim()));
-      element.addClass('_tree' + marker);
+      element.addClass('_' + this._id + '_tree' + marker);
       return element;
     }.bind(this));
   };
@@ -74,9 +79,9 @@ var Tree = function(app, root) {
       markers.push(_marker);
       this._root.dom[param] = this._root.dom[param].map(function(element) {
         var el = $($.parseHTML(element.trim()));
-        el.addClass('_tree' + _marker);
+        el.addClass('_' + this._id + '_tree' + _marker);
         return el;
-      });
+      }.bind(this._root));
       this._root._domIniter(param, this._root.dom[param]);
     }.bind(this));
     this._root._push(this._root._domWatcher, this._name, markers);
@@ -97,10 +102,10 @@ var Tree = function(app, root) {
   };
   
   this._domReplacer = function(code, newDom) {
-    var holder = $('._tree' + code);
+    var holder = $('._' + this._id + '_tree' + code);
     holder.eq(holder.length - 1).after(newDom);
     if (newDom.length === 0 || newDom === undefined) {
-      holder.replaceWith('<emptyTree class="_tree' + code + '"></emptyTree>');
+      holder.replaceWith('<emptyTree class="_' + this._id + '_tree' + code + '"></emptyTree>');
     } else {
       holder.replaceWith();
     }
@@ -123,9 +128,9 @@ var Tree = function(app, root) {
             memory[3].forEach(function(param, index) {
               this.dom[param] = this.dom[param].map(function(element) {
                 var el = $($.parseHTML(element.trim()));
-                el.addClass('_tree' + code[index]);
+                el.addClass('_' + this._id + '_tree' + code[index]);
                 return el;
-              });
+              }.bind(this));
               this._domReplacer(code[index], this.dom[param]);
             }.bind(this));
             this.dom = {};
@@ -142,7 +147,6 @@ var Tree = function(app, root) {
 };
 
 Tree.prototype.initState = function(data) {
-  this.states = {};
   for (var state in data) {
     this.states[state] = data[state];
     if (this.states[state].constructor === Array) {
@@ -202,25 +206,6 @@ Tree.prototype.updateStates = function(states) {
   }
 };
 
-Tree.prototype.render = function(elements) {
-  this._lifeCycle = 'beforeRender';
-  if (this._beforeRender !== null) {
-    this._beforeRender();
-  }
-  $(this._root).empty();
-  $(this._root).append(elements);
-  this.dom = {};
-  this._lifeCycle = 'afterRender';
-  if (this._afterRender !== null) {
-    this._afterRender();
-  }
-  if (this._current === '/' && this._router['/'] === undefined) {
-    this._router['/'] = {
-      template: elements,
-    };
-  }
-};
-
 Tree.prototype.beforeRender = function(method) {
   this._beforeRender = method;
 };
@@ -237,21 +222,46 @@ Tree.prototype.afterUpdate = function(method) {
   this._afterUpdate = method;
 };
 
-Tree.prototype.addRouter = function(template, url) {
-  this._router[url] = {
-    template: template
-  };
+Tree.prototype.initRouter = function(template, url = false) {
+  if (url !== false) {
+    this._baseUrl = url;
+  }
+  this._router['/'] = template;
 };
 
-Tree.prototype.reDirect = function(updateStates, url) {
-  this._router[this._current].states = this.states;
-  if (states !== null) {
-    this.initState(states);
-  } else if(this._router[url].states !== undefined) {
-    this.initState(this._router[url].states);
+Tree.prototype.addRouter = function(template, url) {
+  this._router[url] = template;
+};
+
+Tree.prototype.render = function() {
+  if (this._current === null) {
+    var current = window.location.search;
+    if (this._router[current] === undefined) {
+      this._current = '/';
+    } else {
+      this._current = current;
+    }
   }
-  this.render(this._router[url].template);
-  this.updateStates(this.states);
+  this._lifeCycle = 'beforeRender';
+  if (this._beforeRender !== null) {
+    this._beforeRender();
+  }
+  $(this._root).empty();
+  $(this._root).append(this._router[this._current]);
+  this.dom = {};
+  this._lifeCycle = 'afterRender';
+  if (this._afterRender !== null) {
+    this._afterRender();
+  }
+};
+
+Tree.prototype.reDirect = function(data, url) {
+  this._router[this._current].states = this.states;
+  if (data !== null) {
+    this.initState(data);
+  }
   this._current = url;
-  window.history.pushState(null, null, url);
+  this.render();
+  this.updateStates(this.states);
+  window.history.pushState(null, null, this._baseUrl + url);
 };

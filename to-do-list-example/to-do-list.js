@@ -3,7 +3,8 @@ new Tree('tree', '#root');
 tree.initState({
   title: 'Study List',
   lists: data,
-  showList: true
+  showList: true,
+  now: new Date()
 });
 
 tree.singleBuilder(function() {return `
@@ -48,19 +49,19 @@ tree.states.lists.forEachBuilder(function (list, index) {
 }, 'doing', 'done');
 
 tree.beforeRender(function() {
-  console.log("Now. It's before render");
+  //console.log("Now. It's before render");
 });
 
 tree.afterRender(function() {
-  console.log('Now. Rendered');
+  //console.log('Now. Rendered');
 });
 
 tree.beforeUpdate(function() {
-  console.log("Let's start update");
+  //console.log("Let's start update");
 });
 
 tree.afterUpdate(function() {
-  console.log('Updated');
+  //console.log('Updated');
 });
 
 function editTitle() {
@@ -97,10 +98,10 @@ var pageHeader =`
     <div class="collapse navbar-collapse" id="navbarSupportedContent">
       <ul class="navbar-nav mr-auto">
         <li class="nav-item active">
-          <a class="nav-link" href="#" onclick="toHome()">Home</a>
+          <a class="nav-link" style="cursor: pointer" onclick="toHome()">Home</a>
         </li>
         <li class="nav-item active">
-          <a class="nav-link" href="#" onclick="toAbout()">About</a>
+          <a class="nav-link" style="cursor: pointer" onclick="toAbout()">About</a>
         </li>
       </ul>
     </div>
@@ -144,16 +145,26 @@ var mainPage = `
   </section>
 `;
 
+tree.singleBuilder(function() {return `
+  <h6>
+    ${tree.states.now}
+  </h6>
+`}, 'now');
+
 var aboutPage = `
   ${pageHeader}
   <h5>This is another page</h5>
+  ${tree.dom.now}
 `;
 
+tree.initRouter(mainPage);
 tree.addRouter(aboutPage, '/about');
-tree.render(mainPage);
+tree.render();
 
 function toAbout() {
-  tree.reDirect(null, '/about');
+  tree.reDirect({
+    now: new Date()
+  }, '/about');
 }
 
 function toHome() {

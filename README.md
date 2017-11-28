@@ -32,7 +32,8 @@ appName.initState({
   name: 'tree.js',
   base: 'jQuery',
   type: 'data driven',
-  builderAPIs: ['singleBuilder', 'mapBuilder', 'forEachBuilder']
+  builderAPIs: ['singleBuilder', 'mapBuilder', 'forEachBuilder'],
+  time: new Date()
 });
 ```
   
@@ -78,20 +79,25 @@ appName.states.builderAPIs.forEachBuilder(function (api, index) {
   
 Render & Update
 --
-1. <b>Render Root</b>   
-<b>appName.render(template)</b>    
+1. <b>Render Root</b>  
+<b>appName.initRouter(template, base)</b>  
+<b>appName.render()</b>    
 template contains your html template for this App  
+if base is not defined, the root address will be '/'  
+if base defined, the root address will be '/base/'  
 ```
-appName.render(`
+var indexPage = `
   <header>Description: ${appName.dom.desc}</header>
   <div>
     Dom Builder APIs:
     <ul>${appName.dom.APIs}<ul>
     <button onclick="changeName()">Change Name</button>
   </div>
-`);
+`
+appName.initRouter(indexPage);  
+appName.render();
 ```
-
+  
 2. <b>Update States</b>   
 <b>appName.updateStates({param1: value, ...})</b>   
 Put state and new value pair inside  
@@ -111,7 +117,43 @@ tree.afterRender(function() {
   console.log('Everything rendered');
 });
 ```
-  
+
+Router
+--
+1. Register Router  
+<b>appName.addRouter(template, address)</b>   
+template is the dom element will be rendered for the assigned address  
+```
+var aboutPage = `<h5>about page</h5>`;
+appName.addRouter(aboutPage, '/about');
+var timePage = `<h5>${appName.states.time}</h5>`;
+appName.addRouter(timePage, '/time');
+```
+2. redirect to a route  
+<b>appName.reDirect(data, address);</b>   
+Data should be an object or null,   
+If data is an object, it will be used to update the state while redirect to the address   
+If data is null, it means no states will be updated   
+if address is '/' or not registered by addRouter function, will redirect to root page   
+```
+<div onclick="goToHome()">Home</div>
+<div onclick="goToAbout()">About</div>
+<div onclick="goToTime()">Time</div>
+
+<script>
+function goToHome() {
+  appName.reDirect(null, '/');
+}
+function goToAbout() {
+  appName.reDirect(null, '/about');
+}
+function goToTime() {
+  appName.reDirect({time: new Date()}, '/time');
+}
+</script>
+
+```
+   
 Just For Fun  
 --
 ![For fun](https://github.com/byn9826/tree.js/blob/master/to-do-list-example/fun.jpg)
