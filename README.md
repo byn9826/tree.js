@@ -3,7 +3,7 @@ A light data driven jQuery library just for fun
 
 Example
 --
-[To Do List](https://github.com/byn9826/tree.js/blob/master/to-do-list-example/to-do-list.js)   
+[To Do List](https://byn9826.github.io/tree.js/)   
   
 Prerequisite
 --
